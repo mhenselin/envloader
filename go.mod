@@ -1,3 +1,3 @@
-module github.com/mhenselin/go-envloader
+module github.com/mhenselin/envloader
 
 go 1.25.5
