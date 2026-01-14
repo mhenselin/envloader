@@ -59,7 +59,7 @@ func loadEnv[T any](target *T, lazy bool) error {
 		envValue, ok := os.LookupEnv(envName)
 		if !ok {
 			if required {
-				return fmt.Errorf("environment variable %s must be provided\n", envName)
+				return fmt.Errorf("environment variable %s must be provided", envName)
 			}
 		}
 
@@ -70,29 +70,29 @@ func loadEnv[T any](target *T, lazy bool) error {
 		case reflect.Bool:
 			boolVal, err := strconv.ParseBool(envValue)
 			if err != nil {
-				return fmt.Errorf("environment variable %s must be a valid boolean value\n", envName)
+				return fmt.Errorf("environment variable %s must be a valid boolean value", envName)
 			}
 			f.SetBool(boolVal)
 		case reflect.Int:
 			intVal, err := strconv.ParseInt(envValue, 10, 64)
 			if err != nil {
-				return fmt.Errorf("environment variable %s must be a valid integer value\n", envName)
+				return fmt.Errorf("environment variable %s must be a valid integer value", envName)
 			}
 			f.SetInt(intVal)
 		case reflect.Float64:
 			float64Val, err := strconv.ParseFloat(envValue, 64)
 			if err != nil {
-				return fmt.Errorf("environment variable %s must be a valid integer value\n", envName)
+				return fmt.Errorf("environment variable %s must be a valid integer value", envName)
 			}
 			f.SetFloat(float64Val)
 		case reflect.Float32:
 			float32Val, err := strconv.ParseFloat(envValue, 32)
 			if err != nil {
-				return fmt.Errorf("environment variable %s must be a valid integer value\n", envName)
+				return fmt.Errorf("environment variable %s must be a valid integer value", envName)
 			}
 			f.SetFloat(float32Val)
 		default:
-			return fmt.Errorf("unsupported field type %s for field %s\n", f.Kind(), field.Name)
+			return fmt.Errorf("unsupported field type %s for field %s", f.Kind(), field.Name)
 		}
 	}
 	return nil
@@ -102,8 +102,8 @@ func ToSnakeCase(str string) string {
 	var matchFirstCap = regexp.MustCompile("(.)([A-Z][a-z]+)")
 	var matchAllCap = regexp.MustCompile("([a-z0-9])([A-Z])")
 
-	snake := strings.Replace(str, "-", "_", -1)
-	snake = strings.Replace(snake, " ", "_", -1)
+	snake := strings.ReplaceAll(str, "-", "_")
+	snake = strings.ReplaceAll(snake, " ", "_")
 
 	snake = matchFirstCap.ReplaceAllString(snake, "${1}_${2}")
 	snake = matchAllCap.ReplaceAllString(snake, "${1}_${2}")
