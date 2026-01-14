@@ -1,0 +1,79 @@
+version: "2"
+run:
+  concurrency: 4
+linters:
+  enable:
+    - bodyclose
+    - depguard
+    - errorlint
+    - forcetypeassert
+    - gochecknoinits
+    - gocritic
+    - gosec
+    - misspell
+    - nakedret
+    - revive
+    - sqlclosecheck
+    - wastedassign
+  disable:
+    - noctx
+    - unparam
+  settings:
+    depguard:
+      rules:
+        main:
+          list-mode: lax
+          deny:
+            - pkg: github.com/stretchr/testify
+              desc: Do not use a testing framework
+    gocritic:
+      disabled-checks:
+        - wrapperFunc
+        - typeDefFirst
+        - ifElseChain
+        - dupImport
+        - hugeParam
+      enabled-tags:
+        - performance
+        - style
+        - experimental
+    gosec:
+      excludes:
+        - G104
+        - G102
+        - G304
+        - G307
+    misspell:
+      locale: US
+    nakedret:
+      max-func-lines: 0
+    revive:
+      severity: error
+      rules:
+        - name: errorf
+        - name: context-as-argument
+        - name: error-return
+        - name: increment-decrement
+        - name: indent-error-flow
+        - name: superfluous-else
+        - name: unused-parameter
+        - name: unreachable-code
+        - name: atomic
+        - name: empty-lines
+        - name: early-return
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

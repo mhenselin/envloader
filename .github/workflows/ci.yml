@@ -1,0 +1,65 @@
+name: CI Workflow
+
+on:
+  pull_request:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+env:
+  GO_VERSION: "1.25"
+  CODE_COVERAGE_FILE_NAME: "coverage.out"
+  CODE_COVERAGE_ARTIFACT_NAME: "code-coverage"
+
+jobs:
+  main:
+    name: CI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Build
+        uses: ./.github/actions/build
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: "Run go mod tidy"
+        run: go mod tidy
+
+      - name: "Run go vet"
+        run: go vet ./...
+
+      - name: "Run go test"
+        run: go test ./...
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v9
+        with:
+          version: v2.7
+          args: --config=golang-ci.yaml --allow-parallel-runners --timeout=5m
+
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.CODE_COVERAGE_ARTIFACT_NAME }}
+          path: "${{ env.CODE_COVERAGE_FILE_NAME }}"
+
+  code_coverage:
+    name: "Code coverage report"
+    #if: github.event_name == 'pull_request' # Do not run when workflow is triggered by push to main branch
+    runs-on: ubuntu-latest
+    needs: main
+    permissions:
+      contents: read
+      actions: read  # to download code coverage results from "main" job
+      pull-requests: write # write permission needed to comment on PR
+    steps:
+      - name: Check new code coverage
+        uses: fgrosse/go-coverage-report@v1.2.0
+        continue-on-error: true  # Add this line to prevent pipeline failures in forks
+        with:
+          coverage-artifact-name: ${{ env.CODE_COVERAGE_ARTIFACT_NAME }}
+          coverage-file-name: ${{ env.CODE_COVERAGE_FILE_NAME }}
+          root-package: 'github.com/mhenselin/go-envloader'
