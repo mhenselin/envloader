@@ -62,6 +62,12 @@ func loadEnv[T any](target *T, lazy bool) error {
 				return fmt.Errorf("environment variable %s must be provided", envName)
 			}
 		}
+		if envValue == "" {
+			if required {
+				return fmt.Errorf("environment variable %s must not be empty", envName)
+			}
+			continue
+		}
 
 		f := gc.Field(i)
 		switch f.Kind() {

@@ -12,6 +12,10 @@ func TestLoadEnv(t *testing.T) {
 		OptionDifferentSnakeCaseName string `env:"OPTION_DIFF"`
 		Skip                         string `env:"-"`
 		OnlyLazy                     string
+		IntValue                     int     `env:"INT_VALUE"`
+		BoolValue                    bool    `env:"BOOL_VALUE"`
+		FLoatSimpleValue             float32 `env:"FLOAT_SIMPLE_VALUE"`
+		FLoatDoubleValue             float64 `env:"FLOAT_DOUBLE_VALUE"`
 	}
 	type args struct {
 		env  map[string]string
@@ -41,6 +45,153 @@ func TestLoadEnv(t *testing.T) {
 				OptionDifferentSnakeCaseName: "",
 				Skip:                         "",
 				OnlyLazy:                     "",
+			},
+		},
+		{
+			name: "regular with int value",
+			args: args{
+				env: map[string]string{
+					"NAME":      "MyTest",
+					"SKIP":      "should never show up",
+					"ONLY_LAZY": "my lazy value",
+					"INT_VALUE": "123",
+				},
+				lazy: false,
+			},
+			wantErr: false,
+			want: Config{
+				Name:                         "MyTest",
+				OptionSnakeCaseName:          "",
+				OptionDifferentSnakeCaseName: "",
+				Skip:                         "",
+				OnlyLazy:                     "",
+				IntValue:                     123,
+			},
+		},
+		{
+			name: "regular with float32 value",
+			args: args{
+				env: map[string]string{
+					"NAME":               "MyTest",
+					"SKIP":               "should never show up",
+					"ONLY_LAZY":          "my lazy value",
+					"FLOAT_SIMPLE_VALUE": "123.33",
+				},
+				lazy: false,
+			},
+			wantErr: false,
+			want: Config{
+				Name:                         "MyTest",
+				OptionSnakeCaseName:          "",
+				OptionDifferentSnakeCaseName: "",
+				Skip:                         "",
+				OnlyLazy:                     "",
+				FLoatSimpleValue:             123.33,
+			},
+		},
+		{
+			name: "regular with float64 value",
+			args: args{
+				env: map[string]string{
+					"NAME":               "MyTest",
+					"SKIP":               "should never show up",
+					"ONLY_LAZY":          "my lazy value",
+					"FLOAT_DOUBLE_VALUE": "0.123456789121212121212",
+				},
+				lazy: false,
+			},
+			wantErr: false,
+			want: Config{
+				Name:                         "MyTest",
+				OptionSnakeCaseName:          "",
+				OptionDifferentSnakeCaseName: "",
+				Skip:                         "",
+				OnlyLazy:                     "",
+				FLoatDoubleValue:             0.123456789121212121212,
+			},
+		},
+		{
+			name: "regular with float64 as float32 value",
+			args: args{
+				env: map[string]string{
+					"NAME":               "MyTest",
+					"SKIP":               "should never show up",
+					"ONLY_LAZY":          "my lazy value",
+					"FLOAT_SIMPLE_VALUE": "0.123456789121212121212",
+				},
+				lazy: false,
+			},
+			wantErr: false,
+			want: Config{
+				Name:                         "MyTest",
+				OptionSnakeCaseName:          "",
+				OptionDifferentSnakeCaseName: "",
+				Skip:                         "",
+				OnlyLazy:                     "",
+				FLoatSimpleValue:             0.12345679,
+			},
+		},
+		{
+			name: "regular with bool value true",
+			args: args{
+				env: map[string]string{
+					"NAME":       "MyTest",
+					"SKIP":       "should never show up",
+					"ONLY_LAZY":  "my lazy value",
+					"BOOL_VALUE": "true",
+				},
+				lazy: false,
+			},
+			wantErr: false,
+			want: Config{
+				Name:                         "MyTest",
+				OptionSnakeCaseName:          "",
+				OptionDifferentSnakeCaseName: "",
+				Skip:                         "",
+				OnlyLazy:                     "",
+				BoolValue:                    true,
+			},
+		},
+		{
+			name: "bool value yes fails",
+			args: args{
+				env: map[string]string{
+					"NAME":       "MyTest",
+					"SKIP":       "should never show up",
+					"ONLY_LAZY":  "my lazy value",
+					"BOOL_VALUE": "yes",
+				},
+				lazy: false,
+			},
+			wantErr: true,
+			want: Config{
+				Name:                         "MyTest",
+				OptionSnakeCaseName:          "",
+				OptionDifferentSnakeCaseName: "",
+				Skip:                         "",
+				OnlyLazy:                     "",
+				BoolValue:                    false,
+			},
+		},
+		{
+			name: "bool value 1 returns true",
+			args: args{
+				env: map[string]string{
+					"NAME":       "MyTest",
+					"SKIP":       "should never show up",
+					"ONLY_LAZY":  "my lazy value",
+					"BOOL_VALUE": "1",
+				},
+				lazy: false,
+			},
+			wantErr: false,
+			want: Config{
+				Name:                         "MyTest",
+				OptionSnakeCaseName:          "",
+				OptionDifferentSnakeCaseName: "",
+				Skip:                         "",
+				OnlyLazy:                     "",
+				BoolValue:                    true,
 			},
 		},
 		{
