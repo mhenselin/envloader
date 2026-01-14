@@ -47,12 +47,10 @@ func loadEnv[T any](target *T, lazy bool) error {
 			switch envOption {
 			case "required":
 				required = true
-			case "-":
-				continue
 			case "":
-				continue
+				return fmt.Errorf("empty tag option is not supported")
 			default:
-				return fmt.Errorf("invalid envValue tag %q", envOption)
+				return fmt.Errorf("invalid tag option: %q", envOption)
 			}
 		}
 

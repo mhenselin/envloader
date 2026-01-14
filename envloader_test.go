@@ -48,6 +48,25 @@ func TestLoadEnv(t *testing.T) {
 			},
 		},
 		{
+			name: "fail on empty required",
+			args: args{
+				env: map[string]string{
+					"NAME":      "",
+					"SKIP":      "should never show up",
+					"ONLY_LAZY": "my lazy value",
+				},
+				lazy: false,
+			},
+			wantErr: true,
+			want: Config{
+				Name:                         "",
+				OptionSnakeCaseName:          "",
+				OptionDifferentSnakeCaseName: "",
+				Skip:                         "",
+				OnlyLazy:                     "",
+			},
+		},
+		{
 			name: "regular with int value",
 			args: args{
 				env: map[string]string{
@@ -301,6 +320,48 @@ func TestLoadEnv(t *testing.T) {
 			wantErr: true,
 			want:    Config{},
 		},
+		{
+			name: "should fail on invalid int value",
+			args: args{
+				env: map[string]string{
+					"NAME":      "MyTest",
+					"INT_VALUE": "invalid",
+				},
+				lazy: false,
+			},
+			wantErr: true,
+			want: Config{
+				Name: "MyTest",
+			},
+		},
+		{
+			name: "should fail on invalid float32 value",
+			args: args{
+				env: map[string]string{
+					"NAME":               "MyTest",
+					"FLOAT_SIMPLE_VALUE": "invalid",
+				},
+				lazy: false,
+			},
+			wantErr: true,
+			want: Config{
+				Name: "MyTest",
+			},
+		},
+		{
+			name: "should fail on invalid float64 value",
+			args: args{
+				env: map[string]string{
+					"NAME":               "MyTest",
+					"FLOAT_DOUBLE_VALUE": "invalid",
+				},
+				lazy: false,
+			},
+			wantErr: true,
+			want: Config{
+				Name: "MyTest",
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -308,6 +369,195 @@ func TestLoadEnv(t *testing.T) {
 				t.Setenv(k, v)
 			}
 			tgt := Config{}
+			if tt.args.lazy {
+				if err := LoadEnvLazy(&tgt); (err != nil) != tt.wantErr {
+					t.Errorf("LoadEnv() error = %v, wantErr %v", err, tt.wantErr)
+				}
+			} else {
+				if err := LoadEnv(&tgt); (err != nil) != tt.wantErr {
+					t.Errorf("LoadEnv() error = %v, wantErr %v", err, tt.wantErr)
+				}
+			}
+
+			if !reflect.DeepEqual(reflect.TypeOf(tgt), reflect.TypeOf(tt.want)) {
+				t.Errorf("LoadEnv() got = %v, want %v", reflect.TypeOf(tgt), reflect.TypeOf(tt.want))
+			}
+
+			if !reflect.DeepEqual(tgt, tt.want) {
+				t.Errorf("LoadEnv() got = %v, want %v", tgt, tt.want)
+			}
+		})
+	}
+}
+
+func TestLoadEnvInvalidConfig(t *testing.T) {
+	type InvalidConfig struct {
+		SkipEmptyEnvName         string `env:""`
+		SkipEmptyEnvOption       string `env:"OPTION,"`
+		SkipEmptyEnvOptionNoName string `env:","`
+	}
+	type args struct {
+		env  map[string]string
+		lazy bool
+	}
+	type testCase struct {
+		name    string
+		args    args
+		wantErr bool
+		want    InvalidConfig
+	}
+	tests := []testCase{
+		{
+			name: "fail with empty env option",
+			args: args{
+				env:  map[string]string{},
+				lazy: false,
+			},
+			wantErr: true,
+			want:    InvalidConfig{},
+		},
+		{
+			name: "lazy fail with empty env option",
+			args: args{
+				env:  map[string]string{},
+				lazy: true,
+			},
+			wantErr: true,
+			want:    InvalidConfig{},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			for k, v := range tt.args.env {
+				t.Setenv(k, v)
+			}
+			tgt := InvalidConfig{}
+			if tt.args.lazy {
+				if err := LoadEnvLazy(&tgt); (err != nil) != tt.wantErr {
+					t.Errorf("LoadEnv() error = %v, wantErr %v", err, tt.wantErr)
+				}
+			} else {
+				if err := LoadEnv(&tgt); (err != nil) != tt.wantErr {
+					t.Errorf("LoadEnv() error = %v, wantErr %v", err, tt.wantErr)
+				}
+			}
+
+			if !reflect.DeepEqual(reflect.TypeOf(tgt), reflect.TypeOf(tt.want)) {
+				t.Errorf("LoadEnv() got = %v, want %v", reflect.TypeOf(tgt), reflect.TypeOf(tt.want))
+			}
+
+			if !reflect.DeepEqual(tgt, tt.want) {
+				t.Errorf("LoadEnv() got = %v, want %v", tgt, tt.want)
+			}
+		})
+	}
+}
+
+func TestLoadEnvInvalidOption(t *testing.T) {
+	type InvalidConfig struct {
+		SkipEmptyEnvOption       string `env:"OPTION,notknown"`
+		SkipEmptyEnvOptionNoName string `env:",notknown"`
+	}
+	type args struct {
+		env  map[string]string
+		lazy bool
+	}
+	type testCase struct {
+		name    string
+		args    args
+		wantErr bool
+		want    InvalidConfig
+	}
+	tests := []testCase{
+		{
+			name: "fail with unknown env option",
+			args: args{
+				env:  map[string]string{},
+				lazy: false,
+			},
+			wantErr: true,
+			want:    InvalidConfig{},
+		},
+		{
+			name: "lazy fail with unknown env option",
+			args: args{
+				env:  map[string]string{},
+				lazy: true,
+			},
+			wantErr: true,
+			want:    InvalidConfig{},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			for k, v := range tt.args.env {
+				t.Setenv(k, v)
+			}
+			tgt := InvalidConfig{}
+			if tt.args.lazy {
+				if err := LoadEnvLazy(&tgt); (err != nil) != tt.wantErr {
+					t.Errorf("LoadEnv() error = %v, wantErr %v", err, tt.wantErr)
+				}
+			} else {
+				if err := LoadEnv(&tgt); (err != nil) != tt.wantErr {
+					t.Errorf("LoadEnv() error = %v, wantErr %v", err, tt.wantErr)
+				}
+			}
+
+			if !reflect.DeepEqual(reflect.TypeOf(tgt), reflect.TypeOf(tt.want)) {
+				t.Errorf("LoadEnv() got = %v, want %v", reflect.TypeOf(tgt), reflect.TypeOf(tt.want))
+			}
+
+			if !reflect.DeepEqual(tgt, tt.want) {
+				t.Errorf("LoadEnv() got = %v, want %v", tgt, tt.want)
+			}
+		})
+	}
+}
+func TestLoadEnvUnsupported(t *testing.T) {
+	type InvalidConfig struct {
+		Unsupported struct{} `env:"UNSUPPORTED,required"`
+	}
+	type args struct {
+		env  map[string]string
+		lazy bool
+	}
+	type testCase struct {
+		name    string
+		args    args
+		wantErr bool
+		want    InvalidConfig
+	}
+	tests := []testCase{
+		{
+			name: "fail with unsupported param",
+			args: args{
+				env: map[string]string{
+					"UNSUPPORTED": "foobar",
+				},
+				lazy: false,
+			},
+			wantErr: true,
+			want:    InvalidConfig{},
+		},
+		{
+			name: "lazy fail with unsupported param",
+			args: args{
+				env: map[string]string{
+					"UNSUPPORTED": "foobar",
+				},
+				lazy: true,
+			},
+			wantErr: true,
+			want:    InvalidConfig{},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			for k, v := range tt.args.env {
+				t.Setenv(k, v)
+			}
+			tgt := InvalidConfig{}
 			if tt.args.lazy {
 				if err := LoadEnvLazy(&tgt); (err != nil) != tt.wantErr {
 					t.Errorf("LoadEnv() error = %v, wantErr %v", err, tt.wantErr)
