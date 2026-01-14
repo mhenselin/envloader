@@ -34,6 +34,9 @@ jobs:
       - name: "Run go test"
         run: go test ./...
 
+      - name: "Run go test coverage"
+        run: go test -coverprofile ${{ env.CODE_COVERAGE_FILE_NAME }}
+
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v9
         with:
