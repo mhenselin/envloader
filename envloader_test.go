@@ -1,7 +1,9 @@
 package envloader
 
 import (
+	"math"
 	"reflect"
+	"strconv"
 	"testing"
 )
 
@@ -13,6 +15,10 @@ func TestLoadEnv(t *testing.T) {
 		Skip                         string `env:"-"`
 		OnlyLazy                     string
 		IntValue                     int     `env:"INT_VALUE"`
+		UInt8Value                   uint8   `env:"UINT8_VALUE"`
+		UInt16Value                  uint16  `env:"UINT16_VALUE"`
+		UInt32Value                  uint32  `env:"UINT32_VALUE"`
+		UInt64Value                  uint64  `env:"UINT64_VALUE"`
 		BoolValue                    bool    `env:"BOOL_VALUE"`
 		FLoatSimpleValue             float32 `env:"FLOAT_SIMPLE_VALUE"`
 		FLoatDoubleValue             float64 `env:"FLOAT_DOUBLE_VALUE"`
@@ -360,6 +366,126 @@ func TestLoadEnv(t *testing.T) {
 			wantErr: true,
 			want: Config{
 				Name: "MyTest",
+			},
+		},
+		{
+			name: "should succeed on valid uint8 value",
+			args: args{
+				env: map[string]string{
+					"NAME":        "MyTest",
+					"UINT8_VALUE": "255",
+				},
+				lazy: false,
+			},
+			wantErr: false,
+			want: Config{
+				Name:       "MyTest",
+				UInt8Value: 255,
+			},
+		},
+		{
+			name: "should fail on invalid uint8 value",
+			args: args{
+				env: map[string]string{
+					"NAME":        "MyTest",
+					"UINT8_VALUE": "256",
+				},
+				lazy: false,
+			},
+			wantErr: true,
+			want: Config{
+				Name:       "MyTest",
+				UInt8Value: 0,
+			},
+		},
+		{
+			name: "should succeed on valid uint16 value",
+			args: args{
+				env: map[string]string{
+					"NAME":         "MyTest",
+					"UINT16_VALUE": "65535",
+				},
+				lazy: false,
+			},
+			wantErr: false,
+			want: Config{
+				Name:        "MyTest",
+				UInt16Value: 65535,
+			},
+		},
+		{
+			name: "should fail on invalid uint16 value",
+			args: args{
+				env: map[string]string{
+					"NAME":         "MyTest",
+					"UINT16_VALUE": "65536",
+				},
+				lazy: false,
+			},
+			wantErr: true,
+			want: Config{
+				Name:        "MyTest",
+				UInt16Value: 0,
+			},
+		},
+		{
+			name: "should succeed on valid uint32 value",
+			args: args{
+				env: map[string]string{
+					"NAME":         "MyTest",
+					"UINT32_VALUE": strconv.Itoa(math.MaxUint32),
+				},
+				lazy: false,
+			},
+			wantErr: false,
+			want: Config{
+				Name:        "MyTest",
+				UInt32Value: math.MaxUint32,
+			},
+		},
+		{
+			name: "should fail on invalid uint32 value",
+			args: args{
+				env: map[string]string{
+					"NAME":         "MyTest",
+					"UINT16_VALUE": strconv.Itoa(math.MaxUint32 + 1),
+				},
+				lazy: false,
+			},
+			wantErr: true,
+			want: Config{
+				Name:        "MyTest",
+				UInt16Value: 0,
+			},
+		},
+		{
+			name: "should succeed on valid uint64 value",
+			args: args{
+				env: map[string]string{
+					"NAME":         "MyTest",
+					"UINT64_VALUE": "18446744073709551615",
+				},
+				lazy: false,
+			},
+			wantErr: false,
+			want: Config{
+				Name:        "MyTest",
+				UInt64Value: math.MaxUint64,
+			},
+		},
+		{
+			name: "should fail on invalid uint64 value",
+			args: args{
+				env: map[string]string{
+					"NAME":         "MyTest",
+					"UINT64_VALUE": "18446744073709551616",
+				},
+				lazy: false,
+			},
+			wantErr: true,
+			want: Config{
+				Name:        "MyTest",
+				UInt64Value: 0,
 			},
 		},
 	}

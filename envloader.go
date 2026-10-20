@@ -77,7 +77,43 @@ func loadEnv[T any](target *T, lazy bool) error {
 				return fmt.Errorf("environment variable %s must be a valid boolean value", envName)
 			}
 			f.SetBool(boolVal)
+		case reflect.Uint8:
+			intVal, err := strconv.ParseUint(envValue, 10, 8)
+			if err != nil {
+				return fmt.Errorf("environment variable %s must be a valid Uint8 value", envName)
+			}
+			f.SetUint(intVal)
+		case reflect.Uint16:
+			intVal, err := strconv.ParseUint(envValue, 10, 16)
+			if err != nil {
+				return fmt.Errorf("environment variable %s must be a valid Uint16 value", envName)
+			}
+			f.SetUint(intVal)
+		case reflect.Uint32:
+			intVal, err := strconv.ParseUint(envValue, 10, 32)
+			if err != nil {
+				return fmt.Errorf("environment variable %s must be a valid Uint32 value", envName)
+			}
+			f.SetUint(intVal)
+		case reflect.Uint64:
+			intVal, err := strconv.ParseUint(envValue, 10, 64)
+			if err != nil {
+				return fmt.Errorf("environment variable %s must be a valid Uint64 value", envName)
+			}
+			f.SetUint(intVal)
 		case reflect.Int:
+			intVal, err := strconv.ParseInt(envValue, 10, 64)
+			if err != nil {
+				return fmt.Errorf("environment variable %s must be a valid integer value", envName)
+			}
+			f.SetInt(intVal)
+		case reflect.Int32:
+			intVal, err := strconv.ParseInt(envValue, 10, 32)
+			if err != nil {
+				return fmt.Errorf("environment variable %s must be a valid integer value", envName)
+			}
+			f.SetInt(intVal)
+		case reflect.Int64:
 			intVal, err := strconv.ParseInt(envValue, 10, 64)
 			if err != nil {
 				return fmt.Errorf("environment variable %s must be a valid integer value", envName)

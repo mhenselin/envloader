@@ -1,0 +1,1 @@
+* add tests for max int - regarding platform in use
