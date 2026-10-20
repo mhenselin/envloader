@@ -40,7 +40,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v9
         with:
-          version: v2.7
+          version: v2.15
           args: --config=golang-ci.yaml --allow-parallel-runners --timeout=5m
 
       - name: Archive code coverage results
