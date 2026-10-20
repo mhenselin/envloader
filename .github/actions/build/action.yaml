@@ -8,6 +8,6 @@ runs:
   using: "composite"
   steps:
     - name: Install Go ${{ inputs.go-version }}
-      uses: actions/setup-go@v6
+      uses: actions/setup-go@v7
       with:
         go-version: ${{ inputs.go-version }}

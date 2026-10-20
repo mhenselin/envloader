@@ -8,7 +8,7 @@ on:
       - main
 
 env:
-  GO_VERSION: "1.25"
+  GO_VERSION: "1.27"
   CODE_COVERAGE_FILE_NAME: "coverage.out"
   CODE_COVERAGE_ARTIFACT_NAME: "code-coverage"
 
@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Build
         uses: ./.github/actions/build
@@ -44,7 +44,7 @@ jobs:
           args: --config=golang-ci.yaml --allow-parallel-runners --timeout=5m
 
       - name: Archive code coverage results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ env.CODE_COVERAGE_ARTIFACT_NAME }}
           path: "${{ env.CODE_COVERAGE_FILE_NAME }}"
@@ -65,4 +65,4 @@ jobs:
         with:
           coverage-artifact-name: ${{ env.CODE_COVERAGE_ARTIFACT_NAME }}
           coverage-file-name: ${{ env.CODE_COVERAGE_FILE_NAME }}
-          root-package: 'github.com/mhenselin/go-envloader'
+          root-package: "github.com/mhenselin/go-envloader"
